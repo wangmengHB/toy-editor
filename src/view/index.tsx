@@ -6,6 +6,7 @@ import WorkCanvas from './work-canvas';
 import Toolbox from './toolbox';
 import classnames from 'classnames';
 import styles from './style.less';
+import Controller from '../controller';
 
 
 
@@ -13,10 +14,11 @@ import styles from './style.less';
 export interface ImageEditorProps {
   className?: string;
   style?: React.CSSProperties;
+  controller: Controller;
 }
 
 export interface ImageEditorState {
-  // layerController: LayerController;
+  
 }
 
 
@@ -24,13 +26,14 @@ export default class ImageEditorView extends React.Component<ImageEditorProps, I
 
   constructor(props: ImageEditorProps) {
     super(props);
-    
+    const { controller } = this.props;
+    controller.mountReactCmp(this);
   }
 
   
 
   render() {
-    const { className, style} = this.props;
+    const { className, style, controller } = this.props;
     
     
     return (
@@ -42,12 +45,14 @@ export default class ImageEditorView extends React.Component<ImageEditorProps, I
           <div className={styles['main']}>
             <ImageLayerList 
               className={styles['image-list']}
+              controller={controller}
             />
             <Toolbox 
               className={styles['toolbox']}
             />
             <WorkCanvas 
               className={styles['work-canvas']}
+              controller={controller}
             />
 
           </div>

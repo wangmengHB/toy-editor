@@ -5,20 +5,20 @@ import styles from './index.module.less';
 export interface CanvasSpaceProps{
   className?: string;
   style?: React.CSSProperties;
-  // layerController: any;
+  controller: any;
 }
 
 export default class CanvasSpace extends React.Component<CanvasSpaceProps> {
 
 
   componentDidMount() {
-    // const { layerController } = this.props;  
-    // const workspaceNode = this.refs.workspace;
-    // if (!workspaceNode) {
-    //   throw new Error('failed to get canvas element!');
-    // }
-    // (workspaceNode as any).appendChild(layerController.fCanvas.wrapperEl);
-    // layerController.registerContainer(workspaceNode);
+    const { controller } = this.props;  
+    const workspaceNode = this.refs.workspace;
+    if (!workspaceNode) {
+      throw new Error('failed to get canvas element!');
+    }
+    controller.mountAt(workspaceNode);
+
   }
 
   render() {

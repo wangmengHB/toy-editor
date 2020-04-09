@@ -1,6 +1,6 @@
 
-export const INIT_WIDTH = 500;
-export const INIT_HEIGHT = 400;
+export const INIT_WIDTH = 1600;
+export const INIT_HEIGHT = 900;
 
 
 
@@ -56,17 +56,53 @@ export const KEY_CODES = {
 };
 
 
-export enum COMPONENT_NAMES {
-  CROPPER = 'CROPPER',
-  FLIP = 'FLIP',
-  ROTATION = 'ROTATION',
-  // 'FREE_DRAWING',
-  // 'LINE',
-  // 'TEXT',
-  // 'ICON',
-  // 'FILTER',
-  // 'SHAPE'
-}
+
+export const TOOL_RECT = Object.freeze({
+  type: 'rect',
+  typeName: '矩形',
+  width: 150,
+  height: 100,
+  stroke: 'red',
+  fill: 'rgba(255, 255, 255, 0)',
+});
+
+export const TOOL_CIRCLE = Object.freeze({
+  type: 'circle',
+  typeName: '圆圈',
+  radius: 50,
+  width: 100,
+  height: 100,
+  stroke: 'red',
+  fill: 'rgba(255, 255, 255, 0)',
+});
+
+
+export const TOOL_LOGO = Object.freeze({
+  type: 'rect',
+  typeName: 'LOGO区域',
+  width: 150,
+  height: 100,
+  stroke: 'red',
+  fill: 'rgba(255, 255, 255, 0)',
+});
+
+
+export const TOOL_FACE = Object.freeze({
+  type: 'rect',
+  typeName: '人脸区域',
+  width: 150,
+  height: 100,
+  stroke: 'red',
+  fill: 'rgba(255, 255, 255, 0)',
+});
+
+
+
+// export const TOOL_LINE = Object.freeze({
+//   type: 'rect',
+//   width: 300,
+//   height: 200,
+// });
   
 
 
