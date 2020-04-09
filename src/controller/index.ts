@@ -18,27 +18,23 @@ export default class Controller {
   width: number = INIT_WIDTH;
   height: number = INIT_HEIGHT;
 
-  shapeObjectMap = new Map();
-
-  shapeList: any[] = [];
-
   cssScale: number = 1;
+
+  ruleLineList: any[] = [];
+  ruleMap = new Map();
 
 
   constructor() {
-
     const ele = document.createElement('canvas') as HTMLCanvasElement;
     ele.width = this.width;
     ele.height = this.height;
-
     this.fabricInstance = new fabric.Canvas(ele, {
       preserveObjectStacking: true,
       enableRetinaScaling: false,
+      perPixelTargetFind: false,
       containerClass: 'toy-editor-canvas-container',
     });
-
     this.fabricInstance.on('object:modified', this.onObjectModified);
-
   }
 
   mountAt(container: HTMLElement) {
@@ -103,14 +99,24 @@ export default class Controller {
   onObjectModified = (e: any) => {
     const { target } = e;
     console.log(target);
+    const {id, left, top, width, height, scaleX, scaleY } = target;
+    let rule: any = this.ruleMap.get(id);  
+    if (!rule) {
+      return console.error('failed to find rule!');
+    }
+    // update coordinates
+    rule.left = left;
+    rule.top = top; 
+    rule.width = width * scaleX;
+    rule.height = height * scaleY;
+    this.update();
   }
 
 
 
   addObject(obj: any) {
     const { type } = obj;
-    let target;
-    
+    let target;  
     switch(type) {
       case 'rect':
         target = new fabric.Rect(obj);
@@ -119,19 +125,63 @@ export default class Controller {
         target = new fabric.Circle(obj)
         break;
     }
-
     if (!target) {
       return;
     }
 
-
-    this.shapeObjectMap.set(target, obj);
-    this.shapeList.push(obj);
     this.fabricInstance.add(target);
-    
-    
-    
+    this.update();    
   }
+
+  getRuleLineList() {
+    const objects = this.fabricInstance.getObjects();
+    this.ruleLineList = objects.map((item) => {
+      const {id, left, top, width, height, scaleX, scaleY } = item;
+      let rule: any;
+      rule = this.ruleMap.get(id);
+      if (!rule) {
+        rule = { id, name: "未命名的规则线", description: "规则线描述" };
+        this.ruleMap.set(id, rule); 
+      }
+
+      // update coordinates
+      rule.left = left;
+      rule.top = top; 
+      rule.width = width * scaleX;
+      rule.height = height * scaleY;
+      return rule;
+    })
+    return this.ruleLineList; 
+  }
+
+  updateRule(rule: any) {
+    const { id, left, top, width, height, name, description } = rule;
+    this.ruleMap.set(id, rule);
+    const objects = this.fabricInstance.getObjects();
+    objects.filter(sub => sub.id === id).forEach((obj: any) => {
+      obj.set({
+        left,
+        top,
+        width,
+        height,
+        scaleX: 1,
+        scaleY: 1,
+      });
+    })
+    this.update();
+  }
+
+
+
+
+
+  loadTemplate() {
+
+
+  }
+
+
+
 
 
   update() {

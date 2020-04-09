@@ -73,7 +73,7 @@ export default class ToolItem extends React.Component<any, any> {
 
   render() {
     const { shape } = this.props;
-    const { type, typeName } = shape;
+    const { type, typeName, stroke } = shape;
     
     return (
       <div 
@@ -81,9 +81,12 @@ export default class ToolItem extends React.Component<any, any> {
         draggable={true} 
         onDragStart={this.onDragStart}
         onDragEnd={this.onDragEnd}
+        
       >
-        <div className={styles[`item-icon-${type}`]}>
-        </div>
+        <div 
+          className={styles[`item-icon-${type}`]} 
+          // style={{ borderColor: stroke || '#000'}}
+        />
         <div className={styles['item-label']}>{typeName}</div>
       </div>
     )
