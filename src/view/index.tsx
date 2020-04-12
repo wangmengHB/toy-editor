@@ -38,11 +38,12 @@ export default class ImageEditorView extends React.Component<ImageEditorProps, I
         <div className={classnames([styles['toy-editor'], className])} style={style}>
           <div className={styles['main']}>
             <ControlPanel 
-              className={styles['image-list']}
+              className={styles['control-panel']}
               controller={controller}
             />
             <Toolbox 
               className={styles['toolbox']}
+              controller={controller}
             />
             <WorkCanvas 
               className={styles['work-canvas']}

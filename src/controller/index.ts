@@ -1,14 +1,23 @@
 import { fabric } from 'fabric';
-import { INIT_WIDTH, INIT_HEIGHT, CANVAS_PADDING } from '../const';
+import { INIT_WIDTH, INIT_HEIGHT, CANVAS_PADDING, TEMPLATE_TYPE_NORMAL, TEMPLATE_TYPE_TEMPLATE } from '../const';
 import { getCoordinates } from 'web-util-kit'
 import { generateUuid } from 'util-kit'
 
+const LINE_WIDTH = 4;
 
 fabric.Object.prototype.transparentCorners = false;
 fabric.Object.prototype.padding = 2;
+fabric.Object.prototype.strokeWidth = LINE_WIDTH;
+
+
+
 
 
 export default class Controller {
+
+  templateType = TEMPLATE_TYPE_NORMAL;  // TEMPLATE_TYPE_TEMPLATE
+
+  templateName = '';
 
   fabricInstance: fabric.Canvas;
 
@@ -34,7 +43,21 @@ export default class Controller {
       perPixelTargetFind: false,
       containerClass: 'toy-editor-canvas-container',
     });
+    this.fabricInstance.add(new fabric.Rect({ 
+      left: 0, top: 0, width: ele.width - LINE_WIDTH, height: ele.height - LINE_WIDTH, 
+      stroke: 'rgba(255, 0, 0, 1)',
+      fill: 'rgba(0, 0, 0, 0)',
+      editable: false,
+      selection: false,
+    }));
     this.fabricInstance.on('object:modified', this.onObjectModified);
+    // always show latest state
+    this.fabricInstance.on('mouse:up', () => {
+      if (this.cmp) {
+        this.cmp.forceUpdate();
+      }
+    });
+    (window as any)._f_ = this.fabricInstance;
   }
 
   mountAt(container: HTMLElement) {
@@ -60,7 +83,6 @@ export default class Controller {
     this.container = null;
     this.cmp = null;
   }
-
 
   onDropObject = (e: DragEvent) => {
     e.preventDefault();
@@ -91,6 +113,7 @@ export default class Controller {
       radius,
       left: x - width/2,
       top: y - height/2,
+      editable: true,
       id: generateUuid(),
     }
     this.addObject(obj);
@@ -98,8 +121,9 @@ export default class Controller {
 
   onObjectModified = (e: any) => {
     const { target } = e;
-    console.log(target);
-    const {id, left, top, width, height, scaleX, scaleY } = target;
+    const {id, left, top, width, height, scaleX, scaleY, editable } = target;
+    target.set({ scaleX: 1, scaleY: 1, width: scaleX * width, height: scaleY * height});
+  
     let rule: any = this.ruleMap.get(id);  
     if (!rule) {
       return console.error('failed to find rule!');
@@ -134,36 +158,38 @@ export default class Controller {
   }
 
   getRuleLineList() {
-    const objects = this.fabricInstance.getObjects();
+    const objects = this.fabricInstance.getObjects().filter(item => !!item.editable);
     this.ruleLineList = objects.map((item) => {
       const {id, left, top, width, height, scaleX, scaleY } = item;
       let rule: any;
       rule = this.ruleMap.get(id);
       if (!rule) {
-        rule = { id, name: "未命名的规则线", description: "规则线描述" };
+        rule = { id, name: "规则线名称", description: "规则线描述" };
         this.ruleMap.set(id, rule); 
       }
-
+      // TODO convert shape info into template info
+      const dims = this.getDimension();    
       // update coordinates
-      rule.left = left;
-      rule.top = top; 
-      rule.width = width * scaleX;
-      rule.height = height * scaleY;
+      rule.x = left / (dims.width);
+      rule.y = top / (dims.height); 
+      rule.w = width * scaleX / (dims.width);
+      rule.h = height * scaleY / (dims.height);
       return rule;
     })
     return this.ruleLineList; 
   }
 
   updateRule(rule: any) {
-    const { id, left, top, width, height, name, description } = rule;
+    const { id, x, y, w, h, name, description } = rule;
     this.ruleMap.set(id, rule);
     const objects = this.fabricInstance.getObjects();
+    const dims = this.getDimension();
     objects.filter(sub => sub.id === id).forEach((obj: any) => {
       obj.set({
-        left,
-        top,
-        width,
-        height,
+        left: x * dims.width,
+        top: y * dims.height,
+        width: w * dims.width,
+        height: h * dims.height,
         scaleX: 1,
         scaleY: 1,
       });
@@ -171,8 +197,9 @@ export default class Controller {
     this.update();
   }
 
-
-
+  isItemActive(id: string) {
+    return !!this.fabricInstance.getActiveObjects().find(item => item.id === id);
+  }
 
 
   loadTemplate() {
@@ -180,8 +207,9 @@ export default class Controller {
 
   }
 
-
-
+  toSvg() {
+    return this.fabricInstance.toSvg();
+  }
 
 
   update() {
@@ -201,18 +229,18 @@ export default class Controller {
 
   changeDimension(type, val) {
     this.fabricInstance.setDimensions({ [type]: val });
+    const outline = this.fabricInstance.getObjects()[0];
+    outline.set({ [type]: val - LINE_WIDTH });
     this.autofit();
   }
 
   private autofit = () => {    
     const pixelWidth = this.fabricInstance.getWidth();
     const pixelHeight = this.fabricInstance.getHeight();
-
     const image_aspect = pixelWidth / pixelHeight;
     const MAX_AVAILABLE_WIDTH = this.container.clientWidth - CANVAS_PADDING;
     const MAX_AVAILABLE_HEIGHT = this.container.clientHeight - CANVAS_PADDING;
     const canvasAspect = MAX_AVAILABLE_WIDTH / MAX_AVAILABLE_HEIGHT;
-
     let zoom = 1;
     if (image_aspect < canvasAspect) {
       zoom = MAX_AVAILABLE_HEIGHT / pixelHeight;

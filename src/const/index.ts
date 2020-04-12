@@ -26,26 +26,6 @@ export const CROP_ZONE_ID = 'crop_zone_id';
 export const PRECISION_SCENE_RATIO = 0.001;
 
 
-export const CROP_STYLE = Object.freeze({
-  borderColor: "#fff",
-  cornerColor: "#fff",
-  cornerSize: 16,
-  cornerStrokeColor: "#fff",
-  cornerStyle: "circle",
-  lineWidth: 2,
-  transparentCorners: false
-});
-
-
-export enum Direction {
-  Up = 'up',
-  Down = 'down',
-}
-
-export enum ViewMode {
-  Normal = 'normal',
-  Crop = 'crop',
-}
 
 export const KEY_CODES = {
   Z: 90,
@@ -56,23 +36,28 @@ export const KEY_CODES = {
 };
 
 
+export const TEMPLATE_TYPE_NORMAL = 'normal';
+export const TEMPLATE_TYPE_TEMPLATE = 'template';
+
 
 export const TOOL_RECT = Object.freeze({
   type: 'rect',
-  typeName: '矩形',
+  typeName: '规范线',
+  templateType: 'normal',
   width: 150,
   height: 100,
-  stroke: 'red',
+  stroke: 'blue',
   fill: 'rgba(255, 255, 255, 0)',
 });
 
 export const TOOL_CIRCLE = Object.freeze({
   type: 'circle',
   typeName: '圆圈',
+  templateType: 'normal',
   radius: 50,
   width: 100,
   height: 100,
-  stroke: 'red',
+  stroke: 'blue',
   fill: 'rgba(255, 255, 255, 0)',
 });
 
@@ -80,9 +65,10 @@ export const TOOL_CIRCLE = Object.freeze({
 export const TOOL_LOGO = Object.freeze({
   type: 'rect',
   typeName: 'LOGO区域',
+  templateType: 'LOGO',
   width: 150,
   height: 100,
-  stroke: 'red',
+  stroke: 'blue',
   fill: 'rgba(255, 255, 255, 0)',
 });
 
@@ -90,9 +76,10 @@ export const TOOL_LOGO = Object.freeze({
 export const TOOL_FACE = Object.freeze({
   type: 'rect',
   typeName: '人脸区域',
+  templateType: 'FACE',
   width: 150,
   height: 100,
-  stroke: 'red',
+  stroke: 'blue',
   fill: 'rgba(255, 255, 255, 0)',
 });
 

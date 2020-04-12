@@ -3,7 +3,7 @@ import { Button, Modal, Slider, Icon, Divider, Checkbox, message } from 'antd';
 import styles from './index.module.less';
 import classnames from 'classnames';
 import ToolItem from './tool-item';
-import { TOOL_RECT, TOOL_CIRCLE } from '../../const';
+import { TOOL_RECT, TOOL_CIRCLE, TOOL_LOGO, TOOL_FACE, TEMPLATE_TYPE_NORMAL, TEMPLATE_TYPE_TEMPLATE } from '../../const';
 
 
 
@@ -11,16 +11,23 @@ import { TOOL_RECT, TOOL_CIRCLE } from '../../const';
 export interface ToolboxProps{
   className?: string;
   style?: React.CSSProperties;
+  controller: any;
 }
 
-const TOOL_LIST = [ TOOL_RECT, TOOL_CIRCLE ];
+
 
 
 export default class Toolbox extends React.Component<ToolboxProps>{
 
   
   render() {
-    const { className, style } = this.props;
+    const { className, style, controller } = this.props;
+    let TOOL_LIST = [];
+    if (controller.templateType === TEMPLATE_TYPE_NORMAL) {
+      TOOL_LIST = [ TOOL_RECT ];
+    } else if (controller.templateType === TEMPLATE_TYPE_TEMPLATE) {
+      TOOL_LIST = [ TOOL_LOGO, TOOL_FACE ];
+    }
     
     return (
       <div className={classnames([styles['toolbox-panel'], className])} style={style}>
